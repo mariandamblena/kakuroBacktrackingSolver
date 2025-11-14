@@ -83,8 +83,9 @@ public class Tablero {
                     String token = lineas.get(i)[j];
                     if (token.contains("/")) {
                         String[] partes = token.split("/");
-                        int sumaV = Integer.parseInt(partes[0]);
-                        int sumaH = Integer.parseInt(partes[1]);
+                        // Convertir "-" a "0" antes de parsear
+                        int sumaV = partes[0].equals("-") ? 0 : Integer.parseInt(partes[0]);
+                        int sumaH = partes[1].equals("-") ? 0 : Integer.parseInt(partes[1]);
 
                         // RUN HORIZONTAL: recolectar celdas hacia la DERECHA
                         if (sumaH > 0) {
