@@ -1,3 +1,7 @@
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Clase de prueba para ejecutar múltiples tableros de Kakuro.
  * 
@@ -23,12 +27,13 @@ public class TestKakuro {
         
         // Array con todos los casos de prueba
         String[] archivos = {
-            "kakuro_simple.txt",
-            "kakuro_medio.txt",
-            "kakuro.txt",
-            "kakuro_dificil.txt",
-            "kakuro_imposible.txt",
-            "kakuro_8x8.txt"
+            "tablerostest/kakuro_simple.txt",
+            "tablerostest/kakuro_medio.txt",
+            "tablerostest/kakuro.txt",
+            "tablerostest/kakuro_dificil.txt",
+            "tablerostest/kakuro_imposible.txt",
+            "tablerostest/kakuro_8x8.txt",
+            "tablerostest/kakuro_example.txt"
         };
         
         String[] descripciones = {
@@ -37,8 +42,41 @@ public class TestKakuro {
             "TABLERO ORIGINAL TPO (7x7, ~17 celdas)",
             "TABLERO DIFÍCIL (5x5, ~15 celdas)",
             "TABLERO IMPOSIBLE (sin solución válida)",
-            "TABLERO 8x8 (8x8, 16 celdas)"
+            "TABLERO 8x8 (8x8, 16 celdas)",
+            "TABLERO EXAMPLE (7x7, imagen ejemplo)"
         };
+        
+        // Mostrar menú de opciones
+        System.out.println("Seleccione una opción:");
+        System.out.println("  0. Ejecutar TODOS los tests");
+        for (int i = 0; i < archivos.length; i++) {
+            System.out.println("  " + (i + 1) + ". " + descripciones[i]);
+        }
+        System.out.print("\nIngrese su opción: ");
+        
+        Scanner scanner = new Scanner(System.in);
+        int opcion = -1;
+        
+        try {
+            opcion = scanner.nextInt();
+        } catch (Exception e) {
+            System.out.println("Opción inválida. Ejecutando todos los tests.");
+            opcion = 0;
+        }
+        
+        System.out.println();
+        
+        // Determinar qué tests ejecutar
+        List<Integer> testsAEjecutar = new ArrayList<>();
+        if (opcion == 0 || opcion < 0 || opcion > archivos.length) {
+            // Ejecutar todos
+            for (int i = 0; i < archivos.length; i++) {
+                testsAEjecutar.add(i);
+            }
+        } else {
+            // Ejecutar uno específico
+            testsAEjecutar.add(opcion - 1);
+        }
         
         int totalPruebas = 0;
         int exitosas = 0;
@@ -47,14 +85,14 @@ public class TestKakuro {
         long llamadasTotales = 0;
         
         // Ejecutar cada prueba
-        for (int i = 0; i < archivos.length; i++) {
+        for (int idx : testsAEjecutar) {
             totalPruebas++;
             System.out.println("┌────────────────────────────────────────────────────────────┐");
-            System.out.println("│ TEST #" + totalPruebas + ": " + descripciones[i]);
-            System.out.println("│ Archivo: " + archivos[i]);
+            System.out.println("│ TEST #" + (idx + 1) + ": " + descripciones[idx]);
+            System.out.println("│ Archivo: " + archivos[idx]);
             System.out.println("└────────────────────────────────────────────────────────────┘");
             
-            ResultadoTest resultado = ejecutarTest(archivos[i]);
+            ResultadoTest resultado = ejecutarTest(archivos[idx]);
             
             if (resultado != null) {
                 tiempoTotal += resultado.tiempo;
@@ -89,9 +127,11 @@ public class TestKakuro {
         System.out.println("  Sin solucion / Error: " + fallidas);
         System.out.println("  Tiempo total: " + String.format("%.3f", tiempoTotal / 1e6) + " ms");
         System.out.println("  Total llamadas recursivas: " + llamadasTotales);
-        System.out.println("\n  Complejidad observada: O(9^n) - Exponencial");
+        System.out.println("  Complejidad observada: O(9^n) - Exponencial");
         System.out.println("  Clase de problema: NP-Completo");
         System.out.println("════════════════════════════════════════════════════════════\n");
+        
+        scanner.close();
     }
     
     /**

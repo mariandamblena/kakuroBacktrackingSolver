@@ -9,7 +9,7 @@
 ═══════════════════════════════════════════════════════════════════════
 
   Estado:      ✅ COMPLETO Y FUNCIONAL
-  Fecha:       02/11/2025
+  Fecha:       15/11/2025
   Tema:        TPO Tema 2 - KAKURO
   Técnica:     Backtracking Recursivo con Poda
 
@@ -19,32 +19,33 @@
 
 CÓDIGO FUENTE (7 archivos .java)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  ✓ Main.java              348 líneas    Programa principal
-  ✓ KakuroSolver.java      87 líneas     Algoritmo backtracking
+  ✓ Main.java              48 líneas     Programa principal
+  ✓ KakuroSolver.java      80 líneas     Algoritmo backtracking
   ✓ Validador.java         85 líneas     Validación + poda
-  ✓ Tablero.java           226 líneas    Parser y representación
+  ✓ Tablero.java           243 líneas    Parser y representación
   ✓ Run.java               33 líneas     Estructura Run
   ✓ Celda.java             31 líneas     Estructura Celda
-  ✓ TestKakuro.java        158 líneas    Suite de tests
+  ✓ TestKakuro.java        195 líneas    Suite de tests interactiva
 
-  TOTAL: ~968 líneas de código Java documentado
+  TOTAL: ~715 líneas de código Java documentado
 
 
-TABLEROS DE PRUEBA (6 archivos .txt)
+TABLEROS DE PRUEBA (7 archivos .txt en tablerostest/)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  ✓ kakuro.txt             4 celdas      ⭐ PRINCIPAL - Con solución
-  ✓ kakuro_simple.txt      4 celdas      Test básico
-  ✓ kakuro_medio.txt       6 celdas      Test medio
-  ✓ kakuro_dificil.txt     9 celdas      Test complejo
-  ✓ kakuro_completo.txt    9 celdas      Test integración
-  ✓ kakuro_imposible.txt   4 celdas      Test sin solución
+  ✓ kakuro.txt             4 celdas      ⭐ PRINCIPAL - Original TPO
+  ✓ kakuro_simple.txt      4 celdas      Test básico 2x2
+  ✓ kakuro_medio.txt       6 celdas      Test sin solución
+  ✓ kakuro_dificil.txt     16 celdas     Test complejo sin solución
+  ✓ kakuro_imposible.txt   4 celdas      Test imposible matemático
+  ✓ kakuro_8x8.txt         16 celdas     Test tablero grande 8x8
+  ✓ kakuro_example.txt     28 celdas     Test ejemplo imagen
 
 
-DOCUMENTACIÓN (3 archivos .txt)
+DOCUMENTACIÓN (4 archivos .txt)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   ✓ README.txt             Guía completa del proyecto
+  ✓ PSEUDOCODIGO.txt       Algoritmo en pseudocódigo
   ✓ PRUEBAS.txt            Resultados detallados de tests
-  ✓ RESUMEN.txt            Análisis técnico y complejidad
   ✓ ENTREGA_COMPLETA.txt   Este archivo (checklist final)
 
 
@@ -78,15 +79,17 @@ TEST 2: Ejecución Main.java
 TEST 3: Suite Completa TestKakuro.java
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Comando:   java TestKakuro
-  Tableros:  5 casos ejecutados
+  Tableros:  7 casos ejecutados (menú interactivo)
   Resultado: ✅ TODOS EJECUTADOS CORRECTAMENTE
   
   Detalle:
-    • Simple (2 celdas)     → Sin solución      1 ms
-    • Medio (6 celdas)      → Sin solución      8 ms
-    • Principal (4 celdas)  → ✓ SOLUCIÓN       <1 ms  ⭐
-    • Difícil (22 celdas)   → Sin solución   54,108 ms
-    • Imposible (4 celdas)  → Sin solución     <1 ms
+    • Simple (4 celdas)     → ✓ SOLUCIÓN       1.2 ms  5 llamadas
+    • Medio (6 celdas)      → Sin solución    13.0 ms  74 llamadas
+    • Principal (4 celdas)  → ✓ SOLUCIÓN       0.4 ms  5 llamadas  ⭐
+    • Difícil (16 celdas)   → Sin solución    38.0 ms  1826 llamadas
+    • Imposible (4 celdas)  → Sin solución     0.3 ms  10 llamadas
+    • 8x8 (16 celdas)       → ✓ SOLUCIÓN       0.4 ms  45 llamadas
+    • Example (28 celdas)   → ✓ SOLUCIÓN       4.0 ms  714 llamadas
 
 
 TEST 4: Validación de Solución
@@ -228,15 +231,17 @@ ARCHIVOS A ENTREGAR
     │   ├── Run.java
     │   ├── Celda.java
     │   ├── TestKakuro.java
-    │   ├── kakuro.txt (principal)
-    │   ├── kakuro_simple.txt
-    │   ├── kakuro_medio.txt
-    │   ├── kakuro_dificil.txt
-    │   ├── kakuro_completo.txt
-    │   └── kakuro_imposible.txt
+    │   └── tablerostest/
+    │       ├── kakuro.txt (principal TPO)
+    │       ├── kakuro_simple.txt
+    │       ├── kakuro_medio.txt
+    │       ├── kakuro_dificil.txt
+    │       ├── kakuro_imposible.txt
+    │       ├── kakuro_8x8.txt
+    │       └── kakuro_example.txt
     ├── README.txt
+    ├── PSEUDOCODIGO.txt
     ├── PRUEBAS.txt
-    ├── RESUMEN.txt
     └── ENTREGA_COMPLETA.txt (este archivo)
 
 
@@ -269,19 +274,26 @@ CÓMO USAR
   2. Abrir terminal en TP/src/
   3. Compilar: javac *.java
   4. Ejecutar: java Main
-  5. Para otros tableros: java TestKakuro
+     → Resuelve tablerostest/kakuro_example.txt por defecto
+  5. Para suite de tests: java TestKakuro
+     → Muestra menú interactivo:
+       0. Ejecutar TODOS los tests
+       1-7. Ejecutar test específico
 
 
 CÓMO MODIFICAR TABLERO
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  • Editar kakuro.txt con formato:
+  • Editar archivos en tablerostest/ con formato:
     X     = celda negra
-    .     = celda blanca vacía
-    n/m   = claves (vertical/horizontal)
+    0     = celda blanca vacía
+    n/m   = pistas (n=vertical, m=horizontal)
+    n/-   = pista solo horizontal
+    -/m   = pista solo vertical
   
   • Asegurar formato rectangular
   • Todas las filas mismo ancho
   • Separar tokens con espacios
+  • Cada celda 0 debe tener 1 run horizontal Y 1 vertical
 
 
 SOPORTE TÉCNICO
@@ -320,8 +332,10 @@ SOPORTE TÉCNICO
 ═══════════════════════════════════════════════════════════════════════
 
 Estado:    ✅ LISTO PARA ENTREGAR
-Fecha:     02/11/2025
+Fecha:     15/11/2025
 Calidad:   ⭐⭐⭐⭐⭐ (5/5)
 Cobertura: 100% requisitos TPO
+Tests:     7 tableros - 4 con solución, 3 sin solución
+Menú:      Interactivo con selección de tests
 
 ═══════════════════════════════════════════════════════════════════════

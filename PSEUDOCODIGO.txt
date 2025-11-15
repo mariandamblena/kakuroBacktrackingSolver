@@ -1,0 +1,391 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                PSEUDOCÓDIGO - SOLVER DE KAKURO                        ║
+║                    ALGORITMO BACKTRACKING                             ║
+║                  Programación III - UADE                              ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+
+═══════════════════════════════════════════════════════════════════════
+1. ALGORITMO PRINCIPAL - BACKTRACKING
+═══════════════════════════════════════════════════════════════════════
+
+FUNCIÓN backtrack(índice):
+    
+    // CASO BASE: Todas las celdas completadas
+    SI índice == cantidad_total_celdas_blancas ENTONCES
+        SI validarSoluciónCompleta() ENTONCES
+            RETORNAR verdadero
+        SINO
+            RETORNAR falso
+        FIN SI
+    FIN SI
+    
+    // Obtener celda actual
+    celda ← celdas_blancas[índice]
+    
+    // GENERAR CANDIDATOS: Probar valores del 1 al 9
+    PARA valor ← 1 HASTA 9 HACER
+        celda.valor ← valor
+        
+        // PODA: Validar antes de continuar
+        SI esValido(celda) ENTONCES
+            // RECURSIÓN: Continuar con siguiente celda
+            SI backtrack(índice + 1) ENTONCES
+                RETORNAR verdadero  // Solución encontrada
+            FIN SI
+        FIN SI
+        
+        // BACKTRACK: Deshacer cambio
+        celda.valor ← 0
+    FIN PARA
+    
+    // No se encontró solución
+    RETORNAR falso
+
+FIN FUNCIÓN
+
+
+═══════════════════════════════════════════════════════════════════════
+2. VALIDACIÓN CON PODA TEMPRANA
+═══════════════════════════════════════════════════════════════════════
+
+FUNCIÓN esValido(celda):
+    
+    // Obtener runs horizontal y vertical de la celda
+    runHorizontal ← obtenerRunHorizontal(celda)
+    runVertical ← obtenerRunVertical(celda)
+    
+    // Validar ambos runs
+    RETORNAR validarRun(runHorizontal) Y validarRun(runVertical)
+
+FIN FUNCIÓN
+
+
+FUNCIÓN validarRun(run):
+    
+    conjunto_usados ← conjunto_vacío
+    suma_parcial ← 0
+    celdas_vacías ← 0
+    
+    // Recorrer todas las celdas del run
+    PARA CADA celda EN run.celdas HACER
+        
+        SI celda.valor == 0 ENTONCES
+            celdas_vacías ← celdas_vacías + 1
+            CONTINUAR
+        FIN SI
+        
+        // RESTRICCIÓN 1: No repetir números
+        SI celda.valor ESTÁ_EN conjunto_usados ENTONCES
+            RETORNAR falso  // Número repetido
+        FIN SI
+        
+        AGREGAR celda.valor A conjunto_usados
+        suma_parcial ← suma_parcial + celda.valor
+    FIN PARA
+    
+    // Si el run está completo, verificar suma exacta
+    SI celdas_vacías == 0 ENTONCES
+        RETORNAR suma_parcial == run.suma_objetivo
+    FIN SI
+    
+    // PODA TEMPRANA: Verificar que no exceda objetivo
+    RETORNAR suma_parcial <= run.suma_objetivo
+
+FIN FUNCIÓN
+
+
+═══════════════════════════════════════════════════════════════════════
+3. CARGA DEL TABLERO DESDE ARCHIVO
+═══════════════════════════════════════════════════════════════════════
+
+FUNCIÓN leerTableroDesdeArchivo(nombre_archivo):
+    
+    // PASO 1: Leer todas las líneas
+    líneas ← leerArchivo(nombre_archivo)
+    filas ← cantidad_líneas
+    columnas ← cantidad_tokens_por_línea
+    
+    // PASO 2: Crear matriz y celdas blancas
+    tablero ← matriz_vacía[filas][columnas]
+    celdas_blancas ← lista_vacía
+    
+    PARA i ← 0 HASTA filas-1 HACER
+        PARA j ← 0 HASTA columnas-1 HACER
+            token ← líneas[i][j]
+            
+            SI token == "0" ENTONCES
+                celda ← nueva_Celda(i, j)
+                tablero[i][j] ← celda
+                AGREGAR celda A celdas_blancas
+            SINO
+                tablero[i][j] ← NULO  // Celda negra o con pista
+            FIN SI
+        FIN PARA
+    FIN PARA
+    
+    // PASO 3: Identificar runs horizontales y verticales
+    PARA i ← 0 HASTA filas-1 HACER
+        PARA j ← 0 HASTA columnas-1 HACER
+            token ← líneas[i][j]
+            
+            SI token CONTIENE "/" ENTONCES
+                partes ← dividir(token, "/")
+                suma_vertical ← partes[0]
+                suma_horizontal ← partes[1]
+                
+                // RUN HORIZONTAL: hacia la derecha
+                SI suma_horizontal > 0 ENTONCES
+                    celdas_run ← lista_vacía
+                    col ← j + 1
+                    
+                    MIENTRAS col < columnas Y líneas[i][col] == "0" HACER
+                        AGREGAR tablero[i][col] A celdas_run
+                        col ← col + 1
+                    FIN MIENTRAS
+                    
+                    SI celdas_run NO_VACÍA ENTONCES
+                        run ← nuevo_Run(suma_horizontal, celdas_run)
+                        AGREGAR run A runs_horizontales
+                        MAPEAR cada_celda → run en mapa_runs
+                    FIN SI
+                FIN SI
+                
+                // RUN VERTICAL: hacia abajo
+                SI suma_vertical > 0 ENTONCES
+                    celdas_run ← lista_vacía
+                    fil ← i + 1
+                    
+                    MIENTRAS fil < filas Y líneas[fil][j] == "0" HACER
+                        AGREGAR tablero[fil][j] A celdas_run
+                        fil ← fil + 1
+                    FIN MIENTRAS
+                    
+                    SI celdas_run NO_VACÍA ENTONCES
+                        run ← nuevo_Run(suma_vertical, celdas_run)
+                        AGREGAR run A runs_verticales
+                        MAPEAR cada_celda → run en mapa_runs
+                    FIN SI
+                FIN SI
+            FIN SI
+        FIN PARA
+    FIN PARA
+    
+    // PASO 4: Validar integridad
+    PARA CADA celda EN celdas_blancas HACER
+        SI celda NO_TIENE run_horizontal O NO_TIENE run_vertical ENTONCES
+            RETORNAR ERROR  // Tablero mal formado
+        FIN SI
+    FIN PARA
+    
+    RETORNAR tablero
+
+FIN FUNCIÓN
+
+
+═══════════════════════════════════════════════════════════════════════
+4. PROGRAMA PRINCIPAL
+═══════════════════════════════════════════════════════════════════════
+
+FUNCIÓN main():
+    
+    // 1. CARGAR TABLERO
+    archivo ← "tablerostest/kakuro_example.txt"
+    tablero ← leerTableroDesdeArchivo(archivo)
+    
+    SI tablero == NULO ENTONCES
+        MOSTRAR "Error al cargar tablero"
+        TERMINAR
+    FIN SI
+    
+    celdas_blancas ← tablero.obtenerCeldasBlancas()
+    MOSTRAR "Celdas a completar: " + tamaño(celdas_blancas)
+    
+    // 2. CREAR SOLVER Y RESOLVER
+    solver ← nuevo_KakuroSolver(tablero)
+    
+    tiempo_inicio ← obtener_tiempo_actual()
+    solución_encontrada ← solver.backtrack(0)
+    tiempo_fin ← obtener_tiempo_actual()
+    
+    // 3. MOSTRAR RESULTADOS
+    tiempo_ejecución ← tiempo_fin - tiempo_inicio
+    llamadas_recursivas ← solver.obtenerContadorLlamadas()
+    
+    MOSTRAR "Tiempo: " + tiempo_ejecución + " ms"
+    MOSTRAR "Llamadas recursivas: " + llamadas_recursivas
+    
+    SI solución_encontrada ENTONCES
+        MOSTRAR "SOLUCIÓN ENCONTRADA:"
+        tablero.imprimir()
+    SINO
+        MOSTRAR "SIN SOLUCIÓN"
+    FIN SI
+
+FIN FUNCIÓN
+
+
+═══════════════════════════════════════════════════════════════════════
+5. SUITE DE TESTS CON MENÚ INTERACTIVO
+═══════════════════════════════════════════════════════════════════════
+
+FUNCIÓN testKakuro():
+    
+    // Array de archivos de prueba
+    archivos ← [
+        "tablerostest/kakuro_simple.txt",
+        "tablerostest/kakuro_medio.txt",
+        "tablerostest/kakuro.txt",
+        "tablerostest/kakuro_dificil.txt",
+        "tablerostest/kakuro_imposible.txt",
+        "tablerostest/kakuro_8x8.txt",
+        "tablerostest/kakuro_example.txt"
+    ]
+    
+    descripciones ← [
+        "TABLERO SIMPLE (2x2, 4 celdas)",
+        "TABLERO MEDIO (3x4, ~6 celdas)",
+        "TABLERO ORIGINAL TPO (7x7, ~17 celdas)",
+        "TABLERO DIFÍCIL (5x5, ~15 celdas)",
+        "TABLERO IMPOSIBLE (sin solución válida)",
+        "TABLERO 8x8 (8x8, 16 celdas)",
+        "TABLERO EXAMPLE (7x7, imagen ejemplo)"
+    ]
+    
+    // MOSTRAR MENÚ
+    MOSTRAR "Seleccione una opción:"
+    MOSTRAR "  0. Ejecutar TODOS los tests"
+    PARA i ← 0 HASTA tamaño(archivos)-1 HACER
+        MOSTRAR "  " + (i+1) + ". " + descripciones[i]
+    FIN PARA
+    
+    // LEER OPCIÓN DEL USUARIO
+    opción ← leerEnteroDesdeConsola()
+    
+    // DETERMINAR QUÉ TESTS EJECUTAR
+    SI opción == 0 ENTONCES
+        tests_a_ejecutar ← [0, 1, 2, 3, 4, 5, 6]  // Todos
+    SINO
+        tests_a_ejecutar ← [opción - 1]  // Solo uno
+    FIN SI
+    
+    // EJECUTAR TESTS SELECCIONADOS
+    total_pruebas ← 0
+    exitosas ← 0
+    fallidas ← 0
+    tiempo_total ← 0
+    llamadas_totales ← 0
+    
+    PARA CADA índice EN tests_a_ejecutar HACER
+        total_pruebas ← total_pruebas + 1
+        
+        MOSTRAR "TEST #" + (índice+1) + ": " + descripciones[índice]
+        MOSTRAR "Archivo: " + archivos[índice]
+        
+        resultado ← ejecutarTest(archivos[índice])
+        
+        SI resultado != NULO ENTONCES
+            tiempo_total ← tiempo_total + resultado.tiempo
+            llamadas_totales ← llamadas_totales + resultado.llamadas
+            
+            MOSTRAR "Tiempo: " + resultado.tiempo + " ms"
+            MOSTRAR "Llamadas recursivas: " + resultado.llamadas
+            
+            SI resultado.exito ENTONCES
+                exitosas ← exitosas + 1
+                MOSTRAR "Estado: SOLUCIÓN ENCONTRADA"
+                resultado.tablero.imprimir()
+            SINO
+                fallidas ← fallidas + 1
+                MOSTRAR "Estado: SIN SOLUCIÓN"
+            FIN SI
+        SINO
+            fallidas ← fallidas + 1
+            MOSTRAR "ERROR: No se pudo cargar el tablero"
+        FIN SI
+        
+        MOSTRAR "════════════════════════════════════════"
+    FIN PARA
+    
+    // RESUMEN FINAL
+    MOSTRAR "RESUMEN FINAL:"
+    MOSTRAR "Total de pruebas: " + total_pruebas
+    MOSTRAR "Soluciones encontradas: " + exitosas
+    MOSTRAR "Sin solución / Error: " + fallidas
+    MOSTRAR "Tiempo total: " + tiempo_total + " ms"
+    MOSTRAR "Total llamadas recursivas: " + llamadas_totales
+
+FIN FUNCIÓN
+
+
+═══════════════════════════════════════════════════════════════════════
+6. ANÁLISIS DE COMPLEJIDAD
+═══════════════════════════════════════════════════════════════════════
+
+COMPLEJIDAD TEMPORAL:
+  • Peor caso SIN poda: O(9^n)
+    - n = número de celdas blancas
+    - 9 opciones por celda (valores 1-9)
+    - Árbol de decisión completo
+  
+  • Caso real CON poda: O(k^n) donde k << 9
+    - Poda temprana descarta ramas inválidas
+    - Validación incremental reduce búsqueda
+    - En la práctica: 99% de reducción
+    - Ejemplo: kakuro 8x8 (16 celdas)
+      * Sin poda: 9^16 = 1.85 × 10^15 combinaciones
+      * Con poda: 45 llamadas recursivas
+
+
+COMPLEJIDAD ESPACIAL:
+  • O(n) - Lineal
+    - Pila de recursión: n niveles
+    - Estructuras auxiliares: listas y mapas proporcionales a n
+
+
+CLASE DE PROBLEMA:
+  • NP-Completo
+  • Problema de satisfacción de restricciones (CSP)
+  • No existe solución polinomial conocida
+
+
+OPTIMIZACIONES APLICADAS:
+  1. Poda temprana (early pruning)
+  2. Validación incremental
+  3. Detección de números repetidos con HashSet
+  4. Verificación de suma parcial <= objetivo
+  5. Mapeo directo celda → runs (búsqueda O(1))
+
+
+═══════════════════════════════════════════════════════════════════════
+7. FORMATO DE ENTRADA (TABLEROS .txt)
+═══════════════════════════════════════════════════════════════════════
+
+SÍMBOLOS:
+  X      →  Celda negra/bloqueada
+  0      →  Celda blanca vacía (a completar con 1-9)
+  n/m    →  Pista: n=suma vertical, m=suma horizontal
+  n/-    →  Pista solo horizontal (suma n)
+  -/m    →  Pista solo vertical (suma m)
+
+EJEMPLO:
+  X X 4/- 3/-
+  X -/3 0 0
+  X -/4 0 0
+
+INTERPRETACIÓN:
+  • Fila 1: Pistas horizontales (4 hacia derecha, 3 hacia derecha)
+  • Fila 2: Pista vertical (3 hacia abajo), 2 celdas vacías
+  • Fila 3: Pista vertical (4 hacia abajo), 2 celdas vacías
+
+SOLUCIÓN:
+  X X 4/- 3/-
+  X -/3 1 2     (1+2=3 horizontal ✓)
+  X -/4 3 1     (3+1=4 horizontal ✓)
+                (1+3=4 vertical ✓)
+                (2+1=3 vertical ✓)
+
+
+═══════════════════════════════════════════════════════════════════════
+FIN DEL PSEUDOCÓDIGO
+═══════════════════════════════════════════════════════════════════════

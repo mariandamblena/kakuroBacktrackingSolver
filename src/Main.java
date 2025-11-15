@@ -1,35 +1,24 @@
-/**
- * Programa principal para resolver tableros de Kakuro usando Backtracking.
- * 
- * Trabajo Práctico Obligatorio - Programación III
- * Tema 2: KAKURO
- * 
+/** 
  * El programa lee un tablero desde un archivo, aplica el algoritmo de backtracking
  * para encontrar una solución válida, y muestra estadísticas de ejecución.
  */
 public class Main {
     public static void main(String[] args) {
         // Archivo de entrada con el tablero inicial
-        String archivoEntrada = "kakuro.txt";
+        String archivoEntrada = "tablerostest/kakuro_example.txt";
 
-        System.out.println("=================================================");
-        System.out.println("    SOLVER DE KAKURO - ALGORITMO BACKTRACKING    ");
-        System.out.println("=================================================\n");
-
-        // 1. CARGAR TABLERO desde archivo
+        // 1. Cargo tablero desde txt
         System.out.println("Cargando tablero desde: " + archivoEntrada);
         Tablero tablero = Tablero.leerDesdeArchivo(archivoEntrada);
         
         if (tablero == null) {
             System.err.println("ERROR: No se pudo construir el tablero desde '" + archivoEntrada + "'.");
-            System.err.println("Verifica el formato del archivo de entrada.\n");
             return;
         }
         
-        System.out.println("Tablero cargado exitosamente.");
-        System.out.println("Celdas blancas a completar: " + tablero.getCeldasBlancas().size() + "\n");
+        System.out.println("Tablero cargado, Celdas blancas a completar:"+ tablero.getCeldasBlancas().size() + "\n");
 
-        // 2. CREAR SOLVER y resolver
+        // 2. una vez cargado, resolver con backtracking
         KakuroSolver solver = new KakuroSolver(tablero);
         
         System.out.println("Iniciando resolución con Backtracking...\n");
